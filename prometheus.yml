@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 10s # 10초마다 타겟 서버의 상태(메트릭)를 수집합니다.
+
+scrape_configs:
+  # 1. 프로메테우스 자기 자신 상태 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 나중에 Python Agent나 Nginx 서버를 연결할 때 이 아래에 추가

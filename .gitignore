@@ -1,0 +1,21 @@
+# 1. 파이썬 가상환경 
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# 2. 도커 데이터 
+pgdata/
+
+# 3. 에디터 설정 
+.vscode/
+.idea/
+*.swp
+
+# 4. 환경 변수 및 보안 
+.env
+
+# 5. OS 관련 파일
+.DS_Store
+Thumbs.db

@@ -1,0 +1,18 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database (PostgreSQL)
+sqlalchemy
+psycopg2-binary
+
+# AI & Data Science
+prophet
+pandas
+openai
+
+# Infrastructure & Automation
+docker
+
+# Monitoring
+prometheus-client
