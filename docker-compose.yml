@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. PostgreSQL (메인 데이터베이스)
   db:
@@ -28,7 +26,7 @@ services:
     image: prom/prometheus:latest
     container_name: aiops_prometheus
     ports:
-      - "9100:9090" # Prometheus 기본 포트, localhost:9090으로 접속하면 프로메테우스 화면이 나옴
+      - "9090:9090" # Prometheus 기본 포트, localhost:9090으로 접속하면 프로메테우스 화면이 나옴
     volumes:
       # 프로메테우스 설정 파일을 컨테이너 안으로 넣어줌 (설정 파일은 따로 만들어야 함)
       - ./prometheus.yml:/etc/prometheus/prometheus.yml 
