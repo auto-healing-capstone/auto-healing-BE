@@ -24,8 +24,8 @@ load_dotenv(os.path.join(ROOT_DIR, ".env"))
 # ==========================================
 # 2. FastAPI 설정 및 SQLAlchemy 모델 임포트
 # ==========================================
-from app.core.config import settings
-from app.models.schema import Base
+from app.core.config import settings # noqa: E402
+from app.models.schema import Base # noqa: E402
 
 config = context.config
 
