@@ -1,15 +1,25 @@
 import enum
 from datetime import datetime, timezone
 from sqlalchemy import (
-    Column, Integer, String, Boolean, DateTime, Text, 
-    ForeignKey, Enum, Float, CheckConstraint, Index
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    Text,
+    ForeignKey,
+    Enum,
+    Float,
+    CheckConstraint,
+    Index,
 )
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
+
 # ==========================================
-# 1. ENUM 정의 
+# 1. ENUM 정의
 # ==========================================
 class IncidentTypeEnum(str, enum.Enum):
     CONTAINER_CRASH = "CONTAINER_CRASH"
@@ -19,6 +29,7 @@ class IncidentTypeEnum(str, enum.Enum):
     DB_CONNECTION = "DB_CONNECTION"
     NGINX_5XX = "NGINX_5XX"
 
+
 class StatusEnum(str, enum.Enum):
     DETECTED = "DETECTED"
     ANALYZING = "ANALYZING"
@@ -27,16 +38,19 @@ class StatusEnum(str, enum.Enum):
     RESOLVED = "RESOLVED"
     FAILED = "FAILED"
 
+
 class SeverityEnum(str, enum.Enum):
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"
 
+
 class MetricTypeEnum(str, enum.Enum):
     DISK = "DISK"
     MEMORY = "MEMORY"
     CPU = "CPU"
+
 
 class ActionTypeEnum(str, enum.Enum):
     RESTART_CONTAINER = "RESTART_CONTAINER"
@@ -45,6 +59,7 @@ class ActionTypeEnum(str, enum.Enum):
     RESTART_PROCESS = "RESTART_PROCESS"
     SCALE_OUT = "SCALE_OUT"
 
+
 class ApprovalStatusEnum(str, enum.Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
@@ -52,8 +67,9 @@ class ApprovalStatusEnum(str, enum.Enum):
 
 
 # ==========================================
-# 2. 모델 정의 
+# 2. 모델 정의
 # ==========================================
+
 
 class Incident(Base):
     __tablename__ = "incidents"
@@ -65,15 +81,19 @@ class Incident(Base):
     # 복합 장애를 담는 ARRAY(ENUM)
     incident_types = Column(ARRAY(Enum(IncidentTypeEnum)), nullable=False)
     trigger_metrics = Column(JSONB, nullable=False)
-    
+
     target_node = Column(String(100), index=True, nullable=False)
-    detected_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    status = Column(Enum(StatusEnum), default=StatusEnum.DETECTED, index=True, nullable=False)
-    
+    detected_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    status = Column(
+        Enum(StatusEnum), default=StatusEnum.DETECTED, index=True, nullable=False
+    )
+
     ai_title = Column(String(200), nullable=True)
     ai_severity = Column(Enum(SeverityEnum), index=True, nullable=True)
     llm_analysis = Column(JSONB, nullable=True)
-    
+
     resolved_at = Column(DateTime(timezone=True), nullable=True)
 
     # 🤝 Relationships (JOIN을 파이썬 객체처럼)
@@ -83,9 +103,9 @@ class Incident(Base):
 
     __table_args__ = (
         # 배열(ARRAY) 내부 값을 초고속으로 검색하기 위한 GIN 인덱스!
-        Index('idx_incidents_types', 'incident_types', postgresql_using='gin'),
+        Index("idx_incidents_types", "incident_types", postgresql_using="gin"),
         # 대시보드의 '최신순 정렬'을 위한 DESC 인덱스!
-        Index('idx_incidents_detected_at', detected_at.desc()),
+        Index("idx_incidents_detected_at", detected_at.desc()),
     )
 
 
@@ -97,9 +117,11 @@ class Prediction(Base):
 
     target_node = Column(String(100), index=True, nullable=False)
     metric_type = Column(Enum(MetricTypeEnum), nullable=False)
-    predicted_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    predicted_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
     expected_breach = Column(DateTime(timezone=True), index=True, nullable=False)
-    
+
     confidence = Column(Float, nullable=True)
     is_verified = Column(Boolean, default=False)
 
@@ -113,15 +135,19 @@ class RecoveryAction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     incident_id = Column(Integer, ForeignKey("incidents.id"), index=True, nullable=True)
-    prediction_id = Column(Integer, ForeignKey("predictions.id"), index=True, nullable=True)
+    prediction_id = Column(
+        Integer, ForeignKey("predictions.id"), index=True, nullable=True
+    )
 
     action_type = Column(Enum(ActionTypeEnum), nullable=False)
-    
+
     # 🛡️ 승인 파이프라인 일원화!
-    approval_status = Column(Enum(ApprovalStatusEnum), default=ApprovalStatusEnum.PENDING, nullable=False)
+    approval_status = Column(
+        Enum(ApprovalStatusEnum), default=ApprovalStatusEnum.PENDING, nullable=False
+    )
     approved_at = Column(DateTime(timezone=True), nullable=True)
     approved_by = Column(String(100), nullable=True)
-    
+
     executed_at = Column(DateTime(timezone=True), nullable=True)
     is_successful = Column(Boolean, nullable=True)
     log_snippet = Column(Text, nullable=True)
@@ -133,7 +159,7 @@ class RecoveryAction(Base):
     __table_args__ = (
         # 둘 중 하나는 무조건 있어야 한다는 CHECK 제약조건
         CheckConstraint(
-            'incident_id IS NOT NULL OR prediction_id IS NOT NULL', 
-            name='check_action_target'
+            "incident_id IS NOT NULL OR prediction_id IS NOT NULL",
+            name="check_action_target",
         ),
     )

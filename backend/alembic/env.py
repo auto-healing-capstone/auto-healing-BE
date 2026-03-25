@@ -8,7 +8,7 @@ from alembic import context
 from dotenv import load_dotenv  # 루트의 .env를 읽어오기 위함
 
 # ==========================================
-# 1. 경로 설정 및 .env 로드 
+# 1. 경로 설정 및 .env 로드
 # ==========================================
 # 현재 파일(alembic/env.py) 기준 backend 폴더와 최상단 루트 폴더 경로 계산
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +25,7 @@ load_dotenv(os.path.join(ROOT_DIR, ".env"))
 # 2. FastAPI 설정 및 SQLAlchemy 모델 임포트
 # ==========================================
 from app.core.config import settings
-from app.models.schema import Base 
+from app.models.schema import Base
 
 config = context.config
 
@@ -41,7 +41,6 @@ target_metadata = Base.metadata
 
 # .env 파일에서 가져온 DATABASE_URL을 알렘빅에게 주입
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-
 
 
 def run_migrations_offline() -> None:
@@ -82,9 +81,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
