@@ -6,7 +6,7 @@ messages = [
     "Health check passed",
     "Temporary response delay detected",
     "Database connection timeout",
-    "Internal server error occurred"
+    "Internal server error occurred",
 ]
 
 levels = ["INFO", "INFO", "INFO", "WARNING", "ERROR"]
