@@ -18,10 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # 3. 기본 헬스 체크 엔드포인트 (서버가 잘 살았는지 확인용)
 @app.get("/")
 async def root():
     return {"message": "Welcome to AIOps Auto-Healing System!"}
+
 
 @app.get("/health")
 async def health_check():

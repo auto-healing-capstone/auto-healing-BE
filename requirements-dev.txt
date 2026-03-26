@@ -1,0 +1,6 @@
+# 백엔드의 필수 패키지 목록을 그대로 불러옵니다.
+-r backend/requirements.txt
+
+# 로컬 개발 및 코드 정렬을 위한 보조 도구
+black
+pytest
