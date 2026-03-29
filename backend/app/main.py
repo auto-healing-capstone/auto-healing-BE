@@ -1,10 +1,11 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.api.v1 import alerts, incidents
 from app.core.config import settings
-import app.models.schema  # noqa: F401 --- Ensure ORM models are registered before DB init
+import importlib
+
+importlib.import_module("app.models.schema")  # noqa: F401 — ORM 모델 registry 등록용
 
 app = FastAPI(
     title="AIOps AutoHealing API",

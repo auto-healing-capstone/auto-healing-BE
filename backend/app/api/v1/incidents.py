@@ -1,7 +1,7 @@
 # backend/app/api/v1/incidents.py
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Query, status
 
 from app.schemas.incident import IncidentRead
 from app.services import incident_service
@@ -27,10 +27,12 @@ def list_incidents(
 ) -> list[IncidentRead]:
     return incident_service.get_dummy_incidents(status=status)
 
-    # try:
-    #     return incident_service.get_incidents(db, skip=skip, limit=limit, status=status)
-    # except Exception as exc:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #         detail=f"Failed to fetch incidents: {exc}",
-    #     )
+# try:
+#     return incident_service.get_incidents(
+#         db, skip=skip, limit=limit, status=status
+#     )
+# except Exception as exc:
+#     raise HTTPException(
+#         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#         detail=f"Failed to fetch incidents: {exc}",
+#     )
