@@ -1,0 +1,23 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alertmanager@example.org'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'webhook'
+  routes:
+  - match:
+      alertname: HighCPUUsage
+    receiver: 'webhook'
+  - match:
+      alertname: HighMemoryUsage
+    receiver: 'webhook'
+
+receivers:
+- name: 'webhook'
+  webhook_configs:
+  - url: 'http://10.0.0.1:8000/api/v1/alerts'
+    send_resolved: true

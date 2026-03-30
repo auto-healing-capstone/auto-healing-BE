@@ -1,0 +1,20 @@
+groups:
+  - name: example
+    rules:
+    - alert: HighCPUUsage
+      expr: dummy_cpu_usage > 50
+      for: 0s
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage detected"
+        description: "CPU usage is {{ $value }}%"
+
+    - alert: HighMemoryUsage
+      expr: dummy_memory_usage > 30
+      for: 0s
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage detected"
+        description: "Memory usage is {{ $value }}%"

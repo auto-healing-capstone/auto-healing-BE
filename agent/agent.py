@@ -2,9 +2,10 @@ from prometheus_client import start_http_server, Gauge
 import random
 import time
 
-cpu_usage = Gauge('dummy_cpu_usage', 'Dummy CPU Usage')
-memory_usage = Gauge('dummy_memory_usage', 'Dummy Memory Usage')
-request_count = Gauge('dummy_request_count', 'Dummy Request Count')
+cpu_usage = Gauge("dummy_cpu_usage", "Dummy CPU Usage")
+memory_usage = Gauge("dummy_memory_usage", "Dummy Memory Usage")
+request_count = Gauge("dummy_request_count", "Dummy Request Count")
+
 
 def update_metrics():
     while True:
@@ -13,6 +14,7 @@ def update_metrics():
         request_count.set(random.randint(100, 500))
         print("metrics updated")
         time.sleep(2)
+
 
 if __name__ == "__main__":
     start_http_server(9100)
