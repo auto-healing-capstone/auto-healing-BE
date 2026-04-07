@@ -1,7 +1,0 @@
-route:
-  receiver: 'webhook-receiver'
-
-receivers:
-  - name: 'webhook-receiver'
-    webhook_configs:
-      - url: 'http://host.docker.internal:8000/api/v1/alerts' # backend webhook endpoint

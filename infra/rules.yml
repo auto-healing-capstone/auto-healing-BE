@@ -1,20 +1,44 @@
 groups:
-  - name: example
+  - name: baseline-dummy-alerts
     rules:
     - alert: HighCPUUsage
-      expr: dummy_cpu_usage > 50
-      for: 0s
+      expr: dummy_cpu_usage > 85
+      for: 2m
       labels:
-        severity: warning
+        severity: info
+        source: dummy-agent
       annotations:
-        summary: "High CPU usage detected"
-        description: "CPU usage is {{ $value }}%"
+        summary: "Dummy CPU usage detected"
+        description: "Dummy CPU usage is {{ $value }}%"
 
     - alert: HighMemoryUsage
-      expr: dummy_memory_usage > 30
-      for: 0s
+      expr: dummy_memory_usage > 85
+      for: 2m
+      labels:
+        severity: info
+        source: dummy-agent
+      annotations:
+        summary: "Dummy memory usage detected"
+        description: "Dummy memory usage is {{ $value }}%"
+
+  - name: infra-load-test-alerts
+    rules:
+    - alert: LoadTestHighMemoryUsage
+      expr: infra_load_test_memory_mb > 240
+      for: 15s
       labels:
         severity: warning
+        source: infra-load-test
       annotations:
-        summary: "High memory usage detected"
-        description: "Memory usage is {{ $value }}%"
+        summary: "Load test memory usage detected"
+        description: "Infra load test memory usage is {{ $value }} MB"
+
+    - alert: LoadTestHighDiskUsage
+      expr: infra_load_test_disk_mb > 240
+      for: 15s
+      labels:
+        severity: warning
+        source: infra-load-test
+      annotations:
+        summary: "Load test disk usage detected"
+        description: "Infra load test disk usage is {{ $value }} MB"

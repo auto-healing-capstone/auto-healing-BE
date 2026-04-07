@@ -19,5 +19,5 @@ route:
 receivers:
 - name: 'webhook'
   webhook_configs:
-  - url: 'http://10.0.0.1:8000/api/v1/alerts'
+  - url: 'http://backend:8000/api/v1/alerts'
     send_resolved: true
