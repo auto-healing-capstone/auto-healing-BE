@@ -33,7 +33,7 @@ jobs:
           # Black: 띄어쓰기, 줄바꿈 등 포맷팅이 잘 맞는지 검사
           black --check .
           # Flake8: 문법 에러나 사용하지 않는 변수 등을 검사
-          flake8 . --max-line-length=88 --extend-ignore=E203
+          flake8 . --max-line-length=88 --extend-ignore=E203 --exclude=alembic/versions
 
     # - name: 🛠️ 빌드 및 테스트 (Pytest)
     #   run: |
