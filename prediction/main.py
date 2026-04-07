@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import uvicorn
 from collector import get_prometheus_data
 from preprocess import transform_to_prophet_df

@@ -18,3 +18,8 @@ prometheus-client
 
 # Integrations (슬랙 연동)
 slack_sdk
+
+# Prediction
+apscheduler>=3.10.0
+pandas
+prophet

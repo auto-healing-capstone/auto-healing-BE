@@ -1,15 +1,28 @@
 # backend/app/main.py
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import alerts, incidents
-from app.core.config import settings
+from contextlib import asynccontextmanager  # 표준 라이브러리
 import importlib
 
+from fastapi import FastAPI                 # 서드파티
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1 import alerts, incidents   # 로컬
+from app.core.config import settings
+from app.scheduler import create_scheduler
+
 importlib.import_module("app.models.schema")  # noqa: F401 — ORM 모델 registry 등록용
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = create_scheduler()
+    scheduler.start()
+    yield
+    scheduler.shutdown()
 
 app = FastAPI(
     title="AIOps AutoHealing API",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 origins = [
