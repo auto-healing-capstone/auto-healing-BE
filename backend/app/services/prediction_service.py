@@ -33,9 +33,14 @@ def fetch_forecast(metric_type: str) -> Optional[ForecastResponse]:
         response.raise_for_status()
         return ForecastResponse.model_validate(response.json())
     except requests.RequestException:
-        logger.exception("Failed to fetch forecast from prediction server: metric_type=%s", metric_type)
+        logger.exception(
+            "Failed to fetch forecast from prediction server: metric_type=%s",
+            metric_type,
+        )
     except Exception:
-        logger.exception("Failed to parse forecast response: metric_type=%s", metric_type)
+        logger.exception(
+            "Failed to parse forecast response: metric_type=%s", metric_type
+        )
     return None
 
 
@@ -62,7 +67,9 @@ def assess_risk(forecast: ForecastResponse, metric_type: str) -> RiskAssessment:
     )
 
     if points:
-        avg_interval_width = sum((point.yhat_upper - point.yhat_lower) for point in points) / len(points)
+        avg_interval_width = sum(
+            (point.yhat_upper - point.yhat_lower) for point in points
+        ) / len(points)
         confidence = max(0.0, 1 - (avg_interval_width / 100))
     else:
         confidence = 0.0
@@ -90,6 +97,7 @@ def save_prediction(assessment: RiskAssessment, db: Session) -> Prediction:
     db.add(prediction)
     db.flush()
     return prediction
+
 
 # 주의: is_risky=True일 때만 호출할 것
 # severity가 NONE이면 SeverityEnum KeyError 발생

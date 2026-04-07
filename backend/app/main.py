@@ -2,10 +2,10 @@
 from contextlib import asynccontextmanager  # 표준 라이브러리
 import importlib
 
-from fastapi import FastAPI                 # 서드파티
+from fastapi import FastAPI  # 서드파티
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import alerts, incidents   # 로컬
+from app.api.v1 import alerts, incidents  # 로컬
 from app.core.config import settings
 from app.scheduler import create_scheduler
 
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     yield
     scheduler.shutdown()
+
 
 app = FastAPI(
     title="AIOps AutoHealing API",
