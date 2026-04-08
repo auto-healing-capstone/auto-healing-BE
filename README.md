@@ -1,5 +1,19 @@
 프론트: https://github.com/auto-healing-capstone/auto-healing-FE
 
+## Environment Setup
+
+민감정보와 환경별 설정은 `.env`로만 관리하고 Git에는 올리지 않습니다.
+
+```bash
+cp .env.example .env
+```
+
+필수 값:
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+- `DATABASE_URL`
+- 필요 시 `OPENAI_API_KEY`, `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID`
 ## Infra Load Test
 
 디스크/메모리 자원 변화를 안전하게 시뮬레이션하려면 아래 스크립트를 사용합니다.
