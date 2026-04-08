@@ -16,6 +16,8 @@ pgdata/
 
 # 4. 환경 변수 및 보안 
 .env
+.env.*
+!.env.example
 
 # 5. OS 관련 파일
 .DS_Store
