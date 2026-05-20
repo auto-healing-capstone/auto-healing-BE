@@ -253,7 +253,7 @@ def create_incident_from_llm_result(
         db.add(recovery_action)
         db.commit()
         logger.info(
-            "[TIMING] Incident created at %s id=%s",
+            "[EVENT] Incident created at %s id=%s",
             datetime.now(timezone.utc).isoformat(),
             incident.id,
         )

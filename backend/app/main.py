@@ -21,10 +21,12 @@ from app.scheduler import create_scheduler
 
 importlib.import_module("app.models.schema")  # noqa: F401 — ORM 모델 registry 등록용
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+root_logger = logging.getLogger()
+if not root_logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
 
 logger = logging.getLogger(__name__)
 

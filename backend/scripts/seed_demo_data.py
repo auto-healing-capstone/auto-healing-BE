@@ -4,6 +4,7 @@ Run from backend/ directory:
     python scripts/seed_demo_data.py
 """
 
+import argparse
 import sys
 import os
 import random
@@ -147,12 +148,19 @@ def _minutes(dt: datetime, lo: int, hi: int) -> datetime:
 # ── 시드 로직 ─────────────────────────────────────────────────────────────────
 
 
-def seed():
+def seed(reset: bool = False):
     random.shuffle(STATUS_POOL)
     random.shuffle(SEVERITY_POOL)
 
     db = SessionLocal()
     try:
+        if reset:
+            db.query(RecoveryAction).delete()
+            db.query(AlertEvent).delete()
+            db.query(Incident).delete()
+            db.commit()
+            print("기존 데이터 삭제 완료 (RecoveryAction → AlertEvent → Incident)")
+
         incidents = []
         alert_events = []
         recovery_actions = []
@@ -280,4 +288,11 @@ def seed():
 
 
 if __name__ == "__main__":
-    seed()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="기존 RecoveryAction, AlertEvent, Incident 전체 삭제 후 삽입",
+    )
+    args = parser.parse_args()
+    seed(reset=args.reset)

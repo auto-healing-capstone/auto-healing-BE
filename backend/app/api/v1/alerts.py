@@ -37,7 +37,7 @@ def receive_alert(
     try:
         alert_events = incident_service.create_alert_events_from_payload(payload, db)
         logger.info(
-            "[TIMING] Alert received at %s", datetime.now(timezone.utc).isoformat()
+            "[EVENT] Alert received at %s", datetime.now(timezone.utc).isoformat()
         )
         background_tasks.add_task(run_llm_background, [r.id for r in alert_events])
         return alert_events
