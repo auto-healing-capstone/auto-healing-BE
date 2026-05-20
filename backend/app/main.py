@@ -21,6 +21,13 @@ from app.scheduler import create_scheduler
 
 importlib.import_module("app.models.schema")  # noqa: F401 — ORM 모델 registry 등록용
 
+root_logger = logging.getLogger()
+if not root_logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,6 +54,8 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
 ]
 
 app.add_middleware(
