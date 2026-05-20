@@ -9,8 +9,6 @@ import os
 import random
 from datetime import datetime, timedelta, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from app.db.session import SessionLocal
 from app.models.schema import (
     Incident,
@@ -22,6 +20,8 @@ from app.models.schema import (
     ApprovalStatusEnum,
 )
 from app.models.alert_event import AlertEvent
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 random.seed(42)
 
