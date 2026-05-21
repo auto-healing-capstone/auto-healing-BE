@@ -1,6 +1,7 @@
 # backend/app/services/prediction_job.py
 # Group A 전용 예측 잡 — prediction_service.py 를 건드리지 않고 독립 동작
 import logging
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -10,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.events import broadcaster
 from app.models.schema import (
     Incident,
     IncidentTypeEnum,
@@ -19,6 +21,7 @@ from app.models.schema import (
     StatusEnum,
 )
 from app.schemas.prediction import ForecastResponse, RiskAssessment
+from app.services.prediction_service import _run_proactive_llm_background
 
 logger = logging.getLogger(__name__)
 
@@ -210,6 +213,7 @@ def verify_past_predictions(db: Session) -> None:
 
 
 def run_prediction_job(db: Session) -> bool:
+    proactive_data: list[dict] = []
     try:
         for metric_type in METRIC_TYPES:
             forecast = fetch_forecast(metric_type)
@@ -258,6 +262,11 @@ def run_prediction_job(db: Session) -> bool:
                             update={"severity": "MEDIUM", "is_risky": True}
                         )
                     incident = save_proactive_incident(assessment, prediction, db)
+                    proactive_data.append({
+                        "incident_id": incident.id,
+                        "ai_title": incident.ai_title,
+                        "severity": assessment.severity,
+                    })
                     logger.info(
                         "Created incident %s for %s [%s]%s",
                         incident.id,
@@ -270,8 +279,35 @@ def run_prediction_job(db: Session) -> bool:
 
         verify_past_predictions(db)
         db.commit()
-        return True
     except Exception:
         logger.exception("Group A prediction job failed")
         db.rollback()
         return False
+
+    for d in proactive_data:
+        try:
+            broadcaster.broadcast(
+                "new_incident",
+                {
+                    "incident_id": d["incident_id"],
+                    "ai_title": d["ai_title"],
+                    "ai_severity": d["severity"],
+                    "status": StatusEnum.DETECTED.value,
+                    "proactive": True,
+                },
+            )
+        except Exception:
+            logger.warning(
+                "SSE broadcast new_incident (proactive) failed for incident %s",
+                d["incident_id"],
+                exc_info=True,
+            )
+
+    for d in proactive_data:
+        threading.Thread(
+            target=_run_proactive_llm_background,
+            args=(d["incident_id"],),
+            daemon=True,
+        ).start()
+
+    return True
