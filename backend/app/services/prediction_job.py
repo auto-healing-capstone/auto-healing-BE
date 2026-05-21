@@ -262,11 +262,13 @@ def run_prediction_job(db: Session) -> bool:
                             update={"severity": "MEDIUM", "is_risky": True}
                         )
                     incident = save_proactive_incident(assessment, prediction, db)
-                    proactive_data.append({
-                        "incident_id": incident.id,
-                        "ai_title": incident.ai_title,
-                        "severity": assessment.severity,
-                    })
+                    proactive_data.append(
+                        {
+                            "incident_id": incident.id,
+                            "ai_title": incident.ai_title,
+                            "severity": assessment.severity,
+                        }
+                    )
                     logger.info(
                         "Created incident %s for %s [%s]%s",
                         incident.id,
