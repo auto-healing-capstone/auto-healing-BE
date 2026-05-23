@@ -288,7 +288,12 @@ def execute_recovery(recovery_action_id: int, db: Session) -> bool:
                 for k, v in (recovery_action.params or {}).items()
                 if k in allowed_keys
             }
-            is_successful = update_container(container_name, **safe_params)
+            if safe_params:
+                is_successful = update_container(container_name, **safe_params)
+                if not is_successful:
+                    is_successful = restart_container(container_name)
+            else:
+                is_successful = restart_container(container_name)
         elif action_type == ActionTypeEnum.CLEAR_LOGS:
             is_successful = clear_logs(container_name)
         elif action_type == ActionTypeEnum.DOCKER_PRUNE:
