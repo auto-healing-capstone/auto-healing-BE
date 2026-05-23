@@ -1,22 +1,22 @@
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 
+from anomaly_detector import detect_anomaly
+from calibrator import METRIC_NAME_MAP, get_calibration_status, schedule_calibration
+from collector import COLLECTION_HOURS, get_prometheus_data
+import cache as forecast_cache
+from model import FORECAST_PERIODS, forecast_metric
+from preprocess import transform_to_prophet_df, validate_dataframe
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-
-from collector import get_prometheus_data, COLLECTION_HOURS
-from preprocess import transform_to_prophet_df, validate_dataframe
-from model import forecast_metric, FORECAST_PERIODS
-from anomaly_detector import detect_anomaly
-from calibrator import schedule_calibration, get_calibration_status, METRIC_NAME_MAP
-import cache as forecast_cache
 
 logger = logging.getLogger(__name__)
 
@@ -59,10 +59,11 @@ async def get_forecast(type: str, force_level: str = ""):
         force_level = effective_force
     if force_level.upper() in ("CRITICAL", "WARNING", "WATCH", "CLEAR"):
         level = force_level.upper()
-        from datetime import timedelta
         now = datetime.now()
         breach_soon = now + timedelta(minutes=30)
-        breach_time = breach_soon.strftime("%H:%M") if level in ("CRITICAL", "WARNING") else None
+        breach_time = (
+            breach_soon.strftime("%H:%M") if level in ("CRITICAL", "WARNING") else None
+        )
         return {
             "metric": type,
             "full_name": METRIC_LIST[type],
