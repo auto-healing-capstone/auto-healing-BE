@@ -1,6 +1,7 @@
 import logging
 import os
-from datetime import datetime, timedelta
+
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -25,6 +26,7 @@ app = FastAPI()
 METRIC_LIST: dict[str, str] = {
     "cpu": "dummy_cpu_usage",
     "memory": "dummy_memory_usage",
+    "disk": "dummy_disk_usage",
     "lt_memory": "infra_load_test_memory_mb",
     "lt_disk": "infra_load_test_disk_mb",
     # Group A
@@ -35,6 +37,7 @@ METRIC_LIST: dict[str, str] = {
 THRESHOLD_MAP: dict[str, float] = {
     "cpu": 85.0,
     "memory": 85.0,
+    "disk": 85.0,
     "lt_memory": 240.0,
     "lt_disk": 240.0,
     "memory_leak": 100.0,
@@ -59,7 +62,8 @@ async def get_forecast(type: str, force_level: str = ""):
         force_level = effective_force
     if force_level.upper() in ("CRITICAL", "WARNING", "WATCH", "CLEAR"):
         level = force_level.upper()
-        now = datetime.now()
+        kst = timezone(timedelta(hours=9))
+        now = datetime.now(kst)
         breach_soon = now + timedelta(minutes=30)
         breach_time = (
             breach_soon.strftime("%H:%M") if level in ("CRITICAL", "WARNING") else None

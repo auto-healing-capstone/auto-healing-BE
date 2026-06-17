@@ -9,9 +9,10 @@ PROMETHEUS_URL = "http://localhost:9090/api/v1/query_range"
 COLLECTION_HOURS = {
     "cpu": 168,
     "memory": 168,
+    "disk": 168,
     "lt_memory": 24,
     "lt_disk": 72,
-    "memory_leak": 0.5,  # 시뮬레이션 환경: 단기 트렌드 감지용 (운영 시 24로 복원)
+    "memory_leak": 0.5,  # 테스트용 3분 — 검증 후 0.5로 복원
     "fd_ratio": 0.5,
 }
 

@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     # Prediction server
     PREDICTION_SERVER_URL: str = "http://localhost:8001"
+    GROUP_A_FORCE_LEVEL: str = ""  # 데모용: CRITICAL | WARNING | "" (빈값=실제 데이터)
 
     # .env 파일에서 변수들을 자동으로 읽어오도록 설정
     model_config = SettingsConfigDict(
