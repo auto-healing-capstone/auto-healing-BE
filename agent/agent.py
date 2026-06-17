@@ -6,6 +6,7 @@ import time
 
 cpu_usage = Gauge("dummy_cpu_usage", "Dummy CPU Usage")
 memory_usage = Gauge("dummy_memory_usage", "Dummy Memory Usage")
+disk_usage = Gauge("dummy_disk_usage", "Dummy Disk Usage")
 request_count = Gauge("dummy_request_count", "Dummy Request Count")
 load_test_memory_mb = Gauge(
     "infra_load_test_memory_mb", "Infra load test memory usage in MB"
@@ -78,6 +79,7 @@ def update_metrics():
     while True:
         forced_cpu = os.getenv("FORCE_CPU_USAGE")
         forced_memory = os.getenv("FORCE_MEMORY_USAGE")
+        forced_disk = os.getenv("FORCE_DISK_USAGE")
 
         cpu_usage.set(
             int(forced_cpu)
@@ -88,6 +90,11 @@ def update_metrics():
             int(forced_memory)
             if forced_memory is not None and forced_memory != ""
             else random.randint(20, 80)
+        )
+        disk_usage.set(
+            int(forced_disk)
+            if forced_disk is not None and forced_disk != ""
+            else random.randint(20, 70)
         )
         request_count.set(random.randint(100, 500))
         update_load_test_metrics()

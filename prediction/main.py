@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime
+import os
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -24,6 +25,7 @@ app = FastAPI()
 METRIC_LIST: dict[str, str] = {
     "cpu": "dummy_cpu_usage",
     "memory": "dummy_memory_usage",
+    "disk": "dummy_disk_usage",
     "lt_memory": "infra_load_test_memory_mb",
     "lt_disk": "infra_load_test_disk_mb",
     # Group A
@@ -34,6 +36,7 @@ METRIC_LIST: dict[str, str] = {
 THRESHOLD_MAP: dict[str, float] = {
     "cpu": 85.0,
     "memory": 85.0,
+    "disk": 85.0,
     "lt_memory": 240.0,
     "lt_disk": 240.0,
     "memory_leak": 100.0,
@@ -47,9 +50,38 @@ def read_root():
 
 
 @app.get("/predict/forecast/{type}")
-async def get_forecast(type: str):
+async def get_forecast(type: str, force_level: str = ""):
     if type not in METRIC_LIST:
         raise HTTPException(status_code=400, detail="지원하지 않는 메트릭 타입입니다.")
+
+    # 환경변수 또는 쿼리파라미터로 강제 레벨 설정 (데모용)
+    env_force = os.environ.get("FORCE_ANOMALY_LEVEL", "").upper()
+    effective_force = force_level.upper() or env_force
+    if effective_force in ("CRITICAL", "WARNING", "WATCH", "CLEAR"):
+        force_level = effective_force
+    if force_level.upper() in ("CRITICAL", "WARNING", "WATCH", "CLEAR"):
+        level = force_level.upper()
+        kst = timezone(timedelta(hours=9))
+        now = datetime.now(kst)
+        breach_soon = now + timedelta(minutes=30)
+        breach_time = (
+            breach_soon.strftime("%H:%M") if level in ("CRITICAL", "WARNING") else None
+        )
+        return {
+            "metric": type,
+            "full_name": METRIC_LIST[type],
+            "threshold": THRESHOLD_MAP.get(type, 70.0),
+            "anomaly_level": level,
+            "anomaly_score": 0.85 if level == "CRITICAL" else 0.55,
+            "reason": f"[DEMO] force_level={level}",
+            "breach_time": breach_time,
+            "breach_duration_min": 15 if level in ("CRITICAL", "WARNING") else None,
+            "recommended_action": "restart_container",
+            "peak_predicted": 180.0,
+            "forecast": [],
+            "llm_context": None,
+        }
+
 
     # §2 캐시 HIT → 연산 없이 즉시 반환 (비동기 파이프라인)
     cache_key = f"forecast:{type}"

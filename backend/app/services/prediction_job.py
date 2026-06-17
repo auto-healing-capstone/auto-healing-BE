@@ -65,6 +65,9 @@ def fetch_forecast(metric_type: str) -> Optional[ForecastResponse]:
         return None
 
     url = f"{settings.PREDICTION_SERVER_URL}/predict/forecast/{metric_type}"
+    force_level = settings.GROUP_A_FORCE_LEVEL.strip().upper()
+    if force_level in ("CRITICAL", "WARNING", "WATCH", "CLEAR"):
+        url += f"?force_level={force_level}"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -92,7 +95,7 @@ def fetch_forecast(metric_type: str) -> Optional[ForecastResponse]:
 def assess_risk(forecast: ForecastResponse, metric_type: str) -> RiskAssessment:
     severity, is_risky = _LEVEL_TO_SEVERITY.get(forecast.anomaly_level, ("NONE", False))
     peak_yhat = forecast.peak_predicted or 0.0
-    confidence = max(0.0, 1.0 - (forecast.anomaly_score or 0.0))
+    confidence = forecast.anomaly_score or 0.0
 
     expected_breach: Optional[datetime] = None
     if forecast.breach_time and is_risky:
@@ -181,7 +184,7 @@ def save_proactive_incident(
             "breach_duration_min": assessment.breach_duration_min,
         },
         target_node="system",
-        status=StatusEnum.DETECTED,
+        status=StatusEnum.PENDING,
         ai_severity=severity,
         ai_title=(
             f"[{assessment.anomaly_level}] "

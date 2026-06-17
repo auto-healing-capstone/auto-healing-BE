@@ -1,12 +1,13 @@
 # backend/app/api/v1/actions.py
 import logging
+import threading
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.session import get_db
+from app.db.session import SessionLocal, get_db
 from app.models.schema import ApprovalStatusEnum
 from app.schemas.recovery_action import (
     ApproveRequest,
@@ -51,6 +52,19 @@ def list_recovery_actions(
         )
 
 
+def _execute_recovery_background(recovery_action_id: int) -> None:
+    db = SessionLocal()
+    try:
+        healing_service.execute_recovery(recovery_action_id, db)
+    except Exception:
+        logger.exception(
+            "Background execute_recovery failed for recovery_action_id=%d",
+            recovery_action_id,
+        )
+    finally:
+        db.close()
+
+
 @router.post("/recovery-actions/{id}/review", response_model=ReviewResult)
 def review_recovery_action(
     id: int,
@@ -58,7 +72,7 @@ def review_recovery_action(
     db: Session = Depends(get_db),
 ):
     try:
-        return healing_service.review_recovery_action(
+        result = healing_service.review_recovery_action(
             recovery_action_id=id,
             decision=body.decision,
             reviewed_by=body.requestedBy,
@@ -73,6 +87,15 @@ def review_recovery_action(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
         )
+
+    if body.decision == "approve":
+        threading.Thread(
+            target=_execute_recovery_background,
+            args=(id,),
+            daemon=True,
+        ).start()
+
+    return result
 
 
 @router.post("/recovery-actions/{id}/approve", response_model=RecoveryActionRead)

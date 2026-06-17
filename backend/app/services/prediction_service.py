@@ -63,6 +63,8 @@ def assess_risk(forecast: ForecastResponse, metric_type: str) -> RiskAssessment:
     points = forecast.forecast
     if points:
         peak_yhat = max(point.yhat for point in points)
+    elif forecast.peak_predicted is not None and forecast.peak_predicted > 0:
+        peak_yhat = forecast.peak_predicted
     else:
         peak_yhat = 0.0
 
@@ -92,6 +94,8 @@ def assess_risk(forecast: ForecastResponse, metric_type: str) -> RiskAssessment:
             (point.yhat_upper - point.yhat_lower) for point in points
         ) / len(points)
         confidence = max(0.0, 1 - (avg_interval_width / 100))
+    elif forecast.anomaly_score is not None:
+        confidence = forecast.anomaly_score
     else:
         confidence = 0.0
 
