@@ -51,4 +51,5 @@ settings = Settings()
 # instance 형태: "host:port", 컨테이너명: docker-compose container_name
 TARGET_NODE_MAP: dict[str, str] = {
     "agent:9100": "target_nginx",
+    "system": "target_nginx",
 }
